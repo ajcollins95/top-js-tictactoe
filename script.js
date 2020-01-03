@@ -1,10 +1,10 @@
 const gameBoard = (() => {
     //gameboard module 
-    let board = []
-    const add = (a, b) => a + b;
+    let board = ['O','X',' ',' ','O',' ','X','X','X']
+    const getBoard = () => {return board};
     
     return {
-      add,
+      getBoard,
  
     };
   })();
@@ -14,11 +14,16 @@ const displayController = ((doc) => {
     const sub = (a, b) => a - b;
 
     const displayBoard = (board) => {
-
+        let grid = doc.getElementsByClassName("grid")[0]
+        let cells = grid.children
+        for (let i = 0; i < cells.length; i++) {
+            let p = cells[i].children[0]
+            p.innerText = board.getBoard()[i] //getting the paragraph in the div
+          } 
     }
 
-    const render = () => {
-        
+    const render = (brd) => {
+        displayBoard(brd)
     }
     
     return {
@@ -26,6 +31,7 @@ const displayController = ((doc) => {
 
     };
 })(document);
+
 
 const game = ((board, display) => {
     //game module 
@@ -37,14 +43,14 @@ const game = ((board, display) => {
     }
 
     const init = () => {
-        //do init things
+        display.render(board)
     }
     return {
       init
     };
 })(gameBoard,displayController);
 
-
+game.init()
   /*
   const displayController = (() => {
     //gameboard module 
