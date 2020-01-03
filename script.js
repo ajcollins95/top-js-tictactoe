@@ -12,14 +12,22 @@ const gameBoard = (() => {
 const displayController = ((doc) => {
     //writes things to the document
     const sub = (a, b) => a - b;
+
+    const displayBoard = (board) => {
+
+    }
+
+    const render = () => {
+        
+    }
     
     return {
-      sub,
+      render,
 
     };
 })(document);
 
-const game = ((gBrd, dispCont) => {
+const game = ((board, display) => {
     //game module 
     
     const Player = (name) => {
@@ -27,7 +35,7 @@ const game = ((gBrd, dispCont) => {
         const sayName = () => console.log(`my name is ${name}`)
         return {sayName}
     }
-    
+
     const init = () => {
         //do init things
     }
