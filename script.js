@@ -15,12 +15,58 @@ const gameBoard = (() => {
     const setPlayers = (plyrs) => {
         players = plyrs
     };
+
+    const checkRows = () => {
+        //checks Rows
+        for (let i = 0; i < 3; i++) {
+            let left = i * 3
+            if (board[left] == board[left+1] && board[left+1] == board[left+2]){
+                if (board[left] != ' ') {return board[left]}
+            }
+        } 
+        return 0
+    }
+
+    const checkCols = () => {
+        //checks columns
+        for (let i = 0; i < 3; i++) {
+            if (board[i] == board[i+3] && board[i+3] == board[i+6]){
+                if (board[i] != ' ') {return board[i]}
+            }
+        } 
+        return 0
+    }
+
+    const checkDiags = () => {
+        let center = board[4]
+        if ((center == board[0] && center == board[8]) || 
+            (center == board[6] && center == board[2]) ) {
+                if (center != ' ') {return center}
+        }
+        else {
+            return 0
+        }
+        
+    }
+
+    const checkEndgame = () => {
+        //Looks for Ties and Wins
+        if (!board.includes(' ')) {
+            alert('TIE')
+            return 'Tie'
+        }
+        else if (checkCols() || checkRows() || checkDiags()){
+            alert('WINNNNN')
+        }
+        
+    }
     
     return {
       getBoard,
       fill,
       setPlayers,
-      getPlayers
+      getPlayers,
+      checkEndgame
     };
   })();
 
@@ -61,8 +107,7 @@ const displayController = ((doc) => {
         if (filledSpots % 2 == 1) {
             activePlayer = brd.getPlayers()[1]
         }
-        //console.log(activePlayer)
-        //alert("STOP")
+        
         let msg = `It\'s ${activePlayer.name}\'s turn`
         h4.innerText = msg
     }
@@ -107,8 +152,12 @@ const game = ((board, display) => {
             currentPlayer.mark(i)
             activePlayer = !activePlayer
             display.render(board)
+            board.checkEndgame()
         }
     }
+
+    
+
 
     const cellClicked = (i) => {
         //what to do when a cell is clicked
