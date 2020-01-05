@@ -38,6 +38,14 @@ div > p {
     float: right;
 
 }
+.btnContainer{
+    width: 100%;
+}
+
+button {
+    margin: 0 auto;
+    display: block;
+}
 
 .formcontainer {
     margin: auto;

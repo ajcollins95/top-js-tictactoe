@@ -12,6 +12,8 @@ const gameBoard = (() => {
         }
     };
 
+
+
     const setPlayers = (plyrs) => {
         players = plyrs
     };
@@ -60,9 +62,11 @@ const gameBoard = (() => {
     const checkEndgame = () => {
         //Looks for Ties and Wins
         if (!board.includes(' ')) {
+            board = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
             return 'Tie'
         }
         else if (checkCols() || checkRows() || checkDiags()){
+            board = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
             return(getPlayerTurn() + 1)
         }
         
@@ -85,6 +89,11 @@ const displayController = ((doc) => {
     let cells = grid.children
     let form = doc.getElementsByClassName('formcontainer')[0]
     let start = doc.getElementsByClassName('start')[0]
+    let restart = document.getElementsByTagName("button")[0];
+    let h4 = document.getElementsByTagName("h4")[0];
+    let playerNodes = []
+
+    
 
     const displayBoard = (board) => {
         for (let i = 0; i < cells.length; i++) {
@@ -98,15 +107,42 @@ const displayController = ((doc) => {
             form.style.display = 'block'
         }
         else {
-            form.style.display = ''
+            form.style.display = 'none'
         }
         
     }
+
+
+    const showTie = () => {
+        h4.innerText = 'It\'s a Tie!'
+    }
+
+    const showWin = (player) => {
+        h4.innerText = `${player.name} has won the game!!!`
+    }
+
+    const showRestart = () => {
+        restart.style.display = 'block'
+    }
+
+    const showEndgame = (ending,players) => {
+        //ends the game
+        if (ending == "Tie") {
+            showTie()
+        }
+        else {
+            showWin(players[ending-1])
+        }
+        showRestart()
+    }
+        
 
     const attachListeners = (fns) => {
         //attaches listeners to cells with the given function (fn)
         let cellFn = fns[0]
         let startFn = fns[1]
+        let restartFn = fns[2]
+
         for (let i = 0; i < cells.length; i++) {
             let cell = cells[i]
             cell.addEventListener('click', () => {
@@ -123,11 +159,24 @@ const displayController = ((doc) => {
             let p1 = p2.previousElementSibling.previousElementSibling //skip <br>
             startFn(p1.value,p2.value)
         })
+
+        restart.addEventListener('click', function(e) {
+            reset()
+            restartFn()
+        })
+    }
+
+    const reset = () => {
+        h4.innerText = ''
+        //empty board
+        restart.style.display = 'none'
+        let formParent = form.children[0] 
+        formParent[0].value = ''
+        formParent[1].value = ''
     }
 
     const displayTurn = (brd) => {
         //shows whose turn it is
-        let h4 = document.getElementsByTagName("h4")[0];
         let filledSpots = 0
         brd.getBoard().forEach( (box) => {
             if (box != ' ') {
@@ -146,13 +195,16 @@ const displayController = ((doc) => {
     const init = (fn) => {
         //initializes display 
         attachListeners(fn)
+        restart.style.display = 'none'
+        console.log(restart)
     }
 
     return {
         init,
         displayBoard,
         displayTurn,
-        displayPlayerForm
+        displayPlayerForm,
+        showEndgame
     };
 })(document);
 
@@ -183,13 +235,13 @@ const game = ((board, display) => {
             activePlayer = !activePlayer
             render(board)
             let endStatus = board.checkEndgame()
-            if (endStatus) {endGame(endStatus)}
+            if (endStatus) {
+                isGameRunning = 0
+                display.showEndgame(endStatus,players)
+            }
+
 
         }
-    }
-
-    const endGame = (end) => {
-        //ends the game
     }
 
     const cellClicked = (i) => {
@@ -210,6 +262,11 @@ const game = ((board, display) => {
 
     }
 
+    const restart = () => {
+        isGameRunning = 0
+        render(board)
+    }
+
     const render = () => {
         display.displayBoard(board)
         if (isGameRunning) {
@@ -223,7 +280,7 @@ const game = ((board, display) => {
 
     const init = () => {
         render(board)
-        display.init([cellClicked,submitClicked])
+        display.init([cellClicked, submitClicked, restart])
         //isGameRunning = 1
     }
 
