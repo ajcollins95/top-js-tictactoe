@@ -49,14 +49,21 @@ const gameBoard = (() => {
         
     }
 
+    const getPlayerTurn = () => {
+        let emptyCount = 0
+        board.forEach( (cell) => {
+            if (cell == ' ') { emptyCount++}
+        })
+        return emptyCount % 2
+    }
+
     const checkEndgame = () => {
         //Looks for Ties and Wins
         if (!board.includes(' ')) {
-            alert('TIE')
             return 'Tie'
         }
         else if (checkCols() || checkRows() || checkDiags()){
-            alert('WINNNNN')
+            return(getPlayerTurn() + 1)
         }
         
     }
@@ -70,11 +77,14 @@ const gameBoard = (() => {
     };
   })();
 
+  
 const displayController = ((doc) => {
     //writes things to the document
 
     let grid = doc.getElementsByClassName("grid")[0]
     let cells = grid.children
+    let form = doc.getElementsByClassName('formcontainer')[0]
+    let start = doc.getElementsByClassName('start')[0]
 
     const displayBoard = (board) => {
         for (let i = 0; i < cells.length; i++) {
@@ -83,15 +93,36 @@ const displayController = ((doc) => {
         } 
     }
 
-    const attachListeners = (fn) => {
+    const displayPlayerForm = (status) => {
+        if (status) {
+            form.style.display = 'block'
+        }
+        else {
+            form.style.display = ''
+        }
+        
+    }
+
+    const attachListeners = (fns) => {
         //attaches listeners to cells with the given function (fn)
+        let cellFn = fns[0]
+        let startFn = fns[1]
         for (let i = 0; i < cells.length; i++) {
             let cell = cells[i]
             cell.addEventListener('click', () => {
                 let index = cell.classList[1]
-                fn(index)
+                cellFn(index)
             }) 
-        }     
+        }   
+    
+        start.addEventListener('click', function(e) {
+            //prevent from reloading the page
+            e.preventDefault()
+            let submit = this
+            let p2 = submit.previousElementSibling
+            let p1 = p2.previousElementSibling.previousElementSibling //skip <br>
+            startFn(p1.value,p2.value)
+        })
     }
 
     const displayTurn = (brd) => {
@@ -117,27 +148,26 @@ const displayController = ((doc) => {
         attachListeners(fn)
     }
 
-    const render = (brd) => {
-        displayBoard(brd)
-        displayTurn(brd)
-    }
-    
     return {
-      render,
-      init,
+        init,
+        displayBoard,
+        displayTurn,
+        displayPlayerForm
     };
 })(document);
 
 
 const game = ((board, display) => {
     //game module 
-    let gameRunning = 0
+    let isGameRunning = 0
+    let players = []
+    let activePlayer = 0
 
     const Player = (name, marker) => {
         //player factory function
         const mark = (index) => {
             board.fill(marker,index)
-            display.render(board)
+            render(board)
         }
         return { name,
                  mark}
@@ -151,32 +181,51 @@ const game = ((board, display) => {
         if (brd[i] == ' ') {
             currentPlayer.mark(i)
             activePlayer = !activePlayer
-            display.render(board)
-            board.checkEndgame()
+            render(board)
+            let endStatus = board.checkEndgame()
+            if (endStatus) {endGame(endStatus)}
+
         }
     }
 
-    
-
+    const endGame = (end) => {
+        //ends the game
+    }
 
     const cellClicked = (i) => {
         //what to do when a cell is clicked
-        if (gameRunning)  {
+        if (isGameRunning)  {
             runTurn(i)
         }
     }
 
-    const init = () => {
+    const submitClicked = (p1,p2) => {
+        //when the start game button is clicked
+        isGameRunning = 1
+        let player0 = Player(p1 || 'Player 1','X')
+        let player1 = Player(p2 || 'Player 2','0')
+        players = [player0, player1]
         board.setPlayers(players)
-        display.render(board)
-        display.init(cellClicked)
-        gameRunning = 1
+        render(board)
+
     }
 
-    let player0 = Player('Harry','X')
-    let player1 = Player('Ron','0')
-    let players = [player0, player1]
-    let activePlayer = 0
+    const render = () => {
+        display.displayBoard(board)
+        if (isGameRunning) {
+            display.displayTurn(board)    
+        }
+        
+        display.displayPlayerForm(!isGameRunning)
+       
+    }
+    
+
+    const init = () => {
+        render(board)
+        display.init([cellClicked,submitClicked])
+        //isGameRunning = 1
+    }
 
     return {
       init

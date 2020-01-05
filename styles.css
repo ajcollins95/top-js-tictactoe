@@ -4,8 +4,8 @@
     --cell-size: 10%;
 }
 
-.container {
-    
+.formcontainer {
+    display: none;
 }
 
 .grid {
@@ -32,7 +32,17 @@ div > p {
 .row {
     border: 1px solid var(--main-bg-color); 
     width: 100%
+}
 
+.start {
+    float: right;
+
+}
+
+.formcontainer {
+    margin: auto;
+    width: 25%;
+    padding: 10px;
 }
 
 .center {
@@ -44,20 +54,5 @@ div > p {
 h2,h4 {
     text-align: center;
 }
-
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-td, th {
-    border: 1px solid #dddddd;
-    text-align: center;
-    padding: 8px;
-    height: var(--cell-size);
-    width: var(--cell-size);
-  }
-
 
   
